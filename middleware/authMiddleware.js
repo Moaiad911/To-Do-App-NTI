@@ -9,8 +9,12 @@ function authenticate(req, res, next) {
     return res.status(401).json({ error: "No token provided" });
   }
 
+    //Extract raw token if it starts with "Bearer "
+  const rawToken = token.startsWith("Bearer ") ? token.split(" ")[1] : token;
+
+
   try {
-    const decoded = jwt.verify(token, "secretkey");
+    const decoded = jwt.verify(rawToken, "secretkey");
     console.log("Decoded token:", decoded);
     req.userId = decoded.userId;
     next();
