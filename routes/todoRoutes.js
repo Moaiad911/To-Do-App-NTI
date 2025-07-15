@@ -1,13 +1,21 @@
-const express = require('express');
-const router = express.Router();
-const controller = require('../controllers/todoController');
+const express = require("express");
+const authenticate = require("../middleware/authMiddleware");
+const {
+  getTodos,
+  createTodo,
+  updateTodo,
+  toggleCompleted,
+  deleteTodo,
+} = require("../controllers/todoController");
 
-// These must all point to valid controller functions
-router.get('/todos', controller.getTodos);
-router.post('/todos', controller.createTodo);
-router.put('/todos/:id', controller.updateTodo);
-router.delete('/todos/:id', controller.deleteTodo);
+const router = express.Router();
+
+router.use(authenticate);
+
+router.get("/todos", getTodos);
+router.post("/todos", createTodo);
+router.put("/todos/:id", updateTodo);
+router.patch("/todos/:id/toggle", toggleCompleted);
+router.delete("/todos/:id", deleteTodo);
 
 module.exports = router;
-
-console.log('Controller:', controller);

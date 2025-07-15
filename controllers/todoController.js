@@ -1,46 +1,89 @@
-const Todo = require('../models/Todo');
+const fs = require("fs");
+const path = require("path");
 
-// GET all todos
-const getTodos = async (req, res) => {
-  const todos = await Todo.find();
-  res.json(todos);
-};
+const filePath = path.join(__dirname, "../data/tasks.json");
 
-// POST new todo
-const createTodo = async (req, res) => {
-  const todo = new Todo({ text: req.body.text });
-  await todo.save();
-  res.status(201).json(todo);
-};
+function readTasks() {
+  if (!fs.existsSync(filePath)) return [];
+  const data = fs.readFileSync(filePath);
+  return JSON.parse(data || "[]");
+}
 
-// PUT update todo
-const updateTodo = async (req, res) => {
-  const { id } = req.params;
-  const { text, completed } = req.body;
+function writeTasks(tasks) {
+  fs.writeFileSync(filePath, JSON.stringify(tasks, null, 2));
+}
 
-  const updated = await Todo.findByIdAndUpdate(
-    id,
-    { text, completed },
-    { new: true }
-  );
+function getTodos(req, res) {
+  const tasks = readTasks();
+  const userTasks = tasks.filter((task) => task.userId === req.userId);
+  res.json(userTasks);
+}
 
-  if (!updated) return res.status(404).json({ error: 'Todo not found' });
+function createTodo(req, res) {
+  const tasks = readTasks();
+  const newTask = {
+    id: Date.now(),
+    text: req.body.text,
+    completed: false,
+    userId: req.userId,
+  };
+  tasks.push(newTask);
+  writeTasks(tasks);
+  res.status(201).json(newTask);
+}
+
+function updateTodo(req, res) {
+  const tasks = readTasks();
+  const taskId = parseInt(req.params.id);
+  let updated = null;
+  const updatedTasks = tasks.map((task) => {
+    if (task.id === taskId && task.userId === req.userId) {
+      updated = { ...task, text: req.body.text, completed: req.body.completed };
+      return updated;
+    }
+    return task;
+  });
+  if (!updated) return res.status(404).json({ error: "Todo not found" });
+  writeTasks(updatedTasks);
   res.json(updated);
-};
+}
 
-// DELETE todo
-const deleteTodo = async (req, res) => {
-  const { id } = req.params;
-  const deleted = await Todo.findByIdAndDelete(id);
-  if (!deleted) return res.status(404).json({ error: 'Todo not found' });
+function toggleCompleted(req, res) {
+  const tasks = readTasks();
+  const taskId = parseInt(req.params.id);
+  let updated = null;
+  const updatedTasks = tasks.map((task) => {
+    if (task.id === taskId && task.userId === req.userId) {
+      updated = { ...task, completed: !task.completed };
+      return updated;
+    }
+    return task;
+  });
+  if (!updated) return res.status(404).json({ error: "Todo not found" });
+  writeTasks(updatedTasks);
+  res.json(updated);
+}
 
-  res.json({ message: 'Deleted successfully' });
-};
+function deleteTodo(req, res) {
+  const tasks = readTasks();
+  const taskId = parseInt(req.params.id);
+  const exists = tasks.some(
+    (task) => task.id === taskId && task.userId === req.userId
+  );
+  if (!exists) return res.status(404).json({ error: "Todo not found" });
+  const filteredTasks = tasks.filter(
+    (task) => !(task.id === taskId && task.userId === req.userId)
+  );
+  writeTasks(filteredTasks);
+  res.json({ message: "Deleted successfully" });
+}
 
-// Export correctly ✅
 module.exports = {
+  readTasks,
+  writeTasks,
   getTodos,
   createTodo,
   updateTodo,
-  deleteTodo
+  toggleCompleted,
+  deleteTodo,
 };
