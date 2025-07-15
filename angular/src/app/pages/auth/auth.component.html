@@ -1,0 +1,15 @@
+<h2 style="text-align: center;">Login</h2>
+<div style="display: flex; flex-direction: column; gap: 10px; max-width: 300px; margin: auto;">
+  <input type="email" [(ngModel)]="loginEmail" placeholder="Email" />
+  <input type="password" [(ngModel)]="loginPassword" placeholder="Password" />
+  <button (click)="login()">Login</button>
+</div>
+
+<h2 style="text-align: center; margin-top: 40px;">Signup</h2>
+<div style="display: flex; flex-direction: column; gap: 10px; max-width: 300px; margin: auto;">
+  <input type="text" [(ngModel)]="signupName" placeholder="Name" />
+  <input type="email" [(ngModel)]="signupEmail" placeholder="Email" />
+  <input type="password" [(ngModel)]="signupPassword" placeholder="Password" />
+  <button (click)="signup()">Signup</button>
+</div>
+
