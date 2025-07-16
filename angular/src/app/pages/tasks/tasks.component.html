@@ -1,0 +1,153 @@
+<div class="tasks-container">
+  <!-- Header Section -->
+  <div class="tasks-header">
+    <h1>My Tasks</h1>
+    <div class="stats">
+      <div class="stat-item">
+        <div class="stat-number">{{ tasks.length }}</div>
+        <div class="stat-label">Total Tasks</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">{{ pendingTasksCount }}</div>
+        <div class="stat-label">Pending</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">{{ completedTasksCount }}</div>
+        <div class="stat-label">Completed</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="error" class="error-message">
+    {{ error }}
+  </div>
+
+  <!-- Add New Task Form -->
+  <div class="add-task-form">
+    <div class="task-input-group">
+      <input
+        type="text"
+        class="task-input"
+        placeholder="Enter a new task..."
+        [(ngModel)]="newTaskText"
+        (keyup.enter)="addTask()"
+        [disabled]="loading"
+      />
+      <button
+        class="add-btn"
+        (click)="addTask()"
+        [disabled]="loading || !newTaskText.trim()"
+      >
+        <span *ngIf="loading">Adding...</span>
+        <span *ngIf="!loading">Add Task</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Tasks List -->
+  <div class="tasks-list" *ngIf="tasks.length > 0">
+    <div class="tasks-list-header">
+      <h3>Your Tasks</h3>
+    </div>
+
+    <div
+      class="task-item"
+      *ngFor="let task of tasks; trackBy: trackByTaskId"
+      [class.completed-task]="task.done"
+    >
+      <!-- Task Checkbox -->
+      <input
+        type="checkbox"
+        class="task-checkbox"
+        [checked]="task.done"
+        (change)="toggleTaskDone(task)"
+        [disabled]="loading"
+      />
+
+      <!-- Task Content -->
+      <div class="task-content">
+        <!-- Display Mode -->
+        <div
+          *ngIf="editingTaskId !== task.id"
+          class="task-text"
+          [class.completed]="task.done"
+        >
+          {{ task.text }}
+        </div>
+
+        <!-- Edit Mode -->
+        <div
+          *ngIf="editingTaskId === task.id"
+          style="display: flex; flex: 1; align-items: center"
+        >
+          <input
+            type="text"
+            class="edit-input"
+            [(ngModel)]="editingTaskText"
+            (keyup.enter)="updateTask(task.id)"
+            (keyup.escape)="cancelEdit()"
+            [disabled]="loading"
+            #editInput
+          />
+        </div>
+      </div>
+
+      <!-- Task Actions -->
+      <div class="task-actions">
+        <!-- Display Mode Actions -->
+        <ng-container *ngIf="editingTaskId !== task.id">
+          <button
+            class="btn btn-edit"
+            (click)="startEdit(task)"
+            [disabled]="loading"
+            title="Edit task"
+          >
+            Edit
+          </button>
+          <button
+            class="btn btn-delete"
+            (click)="deleteTask(task.id)"
+            [disabled]="loading"
+            title="Delete task"
+          >
+            Delete
+          </button>
+        </ng-container>
+
+        <!-- Edit Mode Actions -->
+        <ng-container *ngIf="editingTaskId === task.id">
+          <button
+            class="btn btn-save"
+            (click)="updateTask(task.id)"
+            [disabled]="loading || !editingTaskText.trim()"
+            title="Save changes"
+          >
+            Save
+          </button>
+          <button
+            class="btn btn-cancel"
+            (click)="cancelEdit()"
+            [disabled]="loading"
+            title="Cancel editing"
+          >
+            Cancel
+          </button>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="tasks.length === 0 && !loading" class="empty-state">
+    <i class="fas fa-tasks"></i>
+    <h3>No tasks yet</h3>
+    <p>Add your first task above to get started!</p>
+  </div>
+
+  <!-- Loading Indicator -->
+  <div *ngIf="loading" class="loading-spinner">
+    <i class="fas fa-spinner fa-spin"></i>
+    <p>Loading...</p>
+  </div>
+</div>
