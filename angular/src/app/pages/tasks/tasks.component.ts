@@ -208,7 +208,7 @@ export class TasksComponent implements OnInit {
     });
   }
 
-  // Login to real mode
+  // Login
   login(): void {
     this.router.navigate(['/auth']);
   }
@@ -216,9 +216,13 @@ export class TasksComponent implements OnInit {
   // Logout
   logout(): void {
     localStorage.removeItem('token');
-    this.isDemoMode = true;
-    this.loadDemoTasks();
-    this.error = 'Session expired. You are now in demo mode.';
+    //this.isDemoMode = true;
+    //this.loadDemoTasks();
+    //this.error = 'You have been logged out successfully. You are now in demo mode.';
+    // Navigate back to landing page after a short delay
+    setTimeout(() => {
+      this.router.navigate(['/']);
+    }, 1000);
   }
 
   // Get completed tasks count

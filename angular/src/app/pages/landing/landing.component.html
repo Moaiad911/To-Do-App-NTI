@@ -61,7 +61,7 @@
     </div>
   </div>
 
-  <div class="features-section">
+  <div class="features-section" id="features">
     <h2 class="section-title">Why Choose Our To-Do App?</h2>
     <div class="features-grid">
       <div class="feature-card">
@@ -111,7 +111,7 @@
   </div>
 
   <!-- FAQ Section -->
-  <div class="faq-section">
+  <div class="faq-section" id="faq">
     <h2 class="section-title">Frequently Asked Questions</h2>
     <div class="faq-container">
       <div class="faq-item">
@@ -154,7 +154,7 @@
   </div>
 
   <!-- Contact Section -->
-  <div class="contact-section">
+  <div class="contact-section" id="contact">
     <h2 class="section-title">Get In Touch</h2>
     <div class="contact-container">
       <div class="contact-info">
@@ -162,7 +162,7 @@
           <div class="contact-icon">📧</div>
           <div class="contact-details">
             <h4>Email</h4>
-            <p>support at todomaster.com</p>
+            <p>support at taskmaster.com</p>
           </div>
         </div>
         <div class="contact-item">
@@ -203,20 +203,20 @@
         <ul>
           <li><a href="#" (click)="navigateToAuth()">Login</a></li>
           <li><a href="#" (click)="navigateToTasks()">Demo</a></li>
-          <li><a href="#features">Features</a></li>
+          <li><a href="#" (click)="scrollToSection('features')">Features</a></li>
         </ul>
       </div>
       <div class="footer-section">
         <h4>Support</h4>
         <ul>
-          <li><a href="#faq">FAQ</a></li>
-          <li><a href="#contact">Contact</a></li>
-          <li><a href="#privacy">Privacy</a></li>
+          <li><a href="#" (click)="scrollToSection('faq')">FAQ</a></li>
+          <li><a href="#" (click)="scrollToSection('contact')">Contact</a></li>
+          <li><a href="#" (click)="showPrivacyInfo()">Privacy</a></li>
         </ul>
       </div>
     </div>
     <div class="footer-bottom">
-      <p>&copy; 2024 TaskMaster. Built with ❤️ using Angular & Node.js</p>
+      <p>&copy; 2025 TaskMaster. Built with ❤️ using Angular & Node.js</p>
     </div>
   </footer>
 </div> 

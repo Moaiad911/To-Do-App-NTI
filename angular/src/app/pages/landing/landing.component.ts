@@ -27,6 +27,17 @@ export class LandingComponent implements OnInit {
     this.router.navigate(['/tasks']);
   }
 
+  scrollToSection(sectionId: string) {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+
+  showPrivacyInfo() {
+    alert('Privacy Policy\n\nWe respect your privacy and are committed to protecting your personal data. Your tasks and account information are securely stored and never shared with third parties without your explicit consent.\n\nFor more information, please contact us at support at todomaster.com');
+  }
+
   toggleFaq(index: number) {
     this.activeFaq = this.activeFaq === index ? null : index;
   }
@@ -48,13 +59,28 @@ export class LandingComponent implements OnInit {
 
   animateNumber(element: HTMLElement, start: number, end: number, duration: number) {
     const startTime = performance.now();
+    const targetValue = parseFloat(element.getAttribute('data-target') || '0');
     
     const updateNumber = (currentTime: number) => {
       const elapsed = currentTime - startTime;
       const progress = Math.min(elapsed / duration, 1);
       
-      const current = Math.floor(start + (end - start) * progress);
-      element.textContent = current.toLocaleString();
+      const current = start + (end - start) * progress;
+      
+      // Check if the target value is a decimal
+      if (targetValue % 1 !== 0) {
+        // Display as decimal (e.g., 4.9)
+        if (progress >= 1) {
+          // Animation complete, show exact target value
+          element.textContent = targetValue.toFixed(1);
+        } else {
+          // During animation, show current value
+          element.textContent = current.toFixed(1);
+        }
+      } else {
+        // Display as integer with locale formatting
+        element.textContent = Math.floor(current).toLocaleString();
+      }
       
       if (progress < 1) {
         requestAnimationFrame(updateNumber);
