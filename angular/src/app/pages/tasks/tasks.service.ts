@@ -27,7 +27,7 @@ export class TasksService {
 
   // Get all tasks for the logged-in user
   getTasks(): Observable<Task[]> {
-    return this.http.get<Task[]>(this.apiUrl, {
+    return this.http.get<Task[]>(`${this.apiUrl}/todos`, {
       headers: this.getAuthHeaders(),
     });
   }
@@ -35,7 +35,7 @@ export class TasksService {
   // Create a new task
   createTask(text: string): Observable<Task> {
     return this.http.post<Task>(
-      this.apiUrl,
+      `${this.apiUrl}/todos`,
       { text },
       {
         headers: this.getAuthHeaders(),
@@ -46,7 +46,7 @@ export class TasksService {
   // Update task text
   updateTask(taskId: number, text: string): Observable<any> {
     return this.http.put(
-      `${this.apiUrl}/${taskId}`,
+      `${this.apiUrl}/todos/${taskId}`,
       { text },
       {
         headers: this.getAuthHeaders(),
@@ -57,7 +57,7 @@ export class TasksService {
   // Toggle task done status
   toggleTaskDone(taskId: number): Observable<any> {
     return this.http.patch(
-      `${this.apiUrl}/${taskId}/done`,
+      `${this.apiUrl}/todos/${taskId}/toggle`,
       {},
       {
         headers: this.getAuthHeaders(),
@@ -67,7 +67,7 @@ export class TasksService {
 
   // Delete a task
   deleteTask(taskId: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${taskId}`, {
+    return this.http.delete(`${this.apiUrl}/todos/${taskId}`, {
       headers: this.getAuthHeaders(),
     });
   }

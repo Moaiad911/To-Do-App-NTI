@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { TasksService, Task } from './tasks.service';
 
 @Component({
@@ -17,18 +18,42 @@ export class TasksComponent implements OnInit {
   editingTaskText: string = '';
   loading: boolean = false;
   error: string = '';
+  isDemoMode: boolean = false;
 
-  constructor(private tasksService: TasksService) {}
+  constructor(
+    private tasksService: TasksService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
-    this.loadTasks();
+    this.checkAuthStatus();
   }
 
-  // Load all tasks
+  checkAuthStatus(): void {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      this.isDemoMode = true;
+      this.loadDemoTasks();
+    } else {
+      this.isDemoMode = false;
+      this.loadTasks();
+    }
+  }
+
+  // Load demo tasks for unauthenticated users
+  loadDemoTasks(): void {
+    this.tasks = [
+      { id: 1, text: 'Complete project presentation', done: true, userId: 0 },
+      { id: 2, text: 'Review code changes', done: false, userId: 0 },
+      { id: 3, text: 'Plan team meeting', done: false, userId: 0 },
+      { id: 4, text: 'Update documentation', done: true, userId:0}
+    ];
+  }
+
+  // Load all tasks from backend
   loadTasks(): void {
     this.loading = true;
     this.error = '';
-
     this.tasksService.getTasks().subscribe({
       next: (tasks) => {
         this.tasks = tasks;
@@ -36,7 +61,14 @@ export class TasksComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading tasks:', error);
-        this.error = 'Failed to load tasks';
+        if (error.status === 419) { // Token expired or invalid, switch to demo mode
+          localStorage.removeItem('token');
+          this.isDemoMode = true;
+          this.loadDemoTasks();
+          this.error = 'Session expired. You are now in demo mode.';
+        } else {
+          this.error = 'Failed to load tasks';
+        }
         this.loading = false;
       },
     });
@@ -45,6 +77,19 @@ export class TasksComponent implements OnInit {
   // Create new task
   addTask(): void {
     if (!this.newTaskText.trim()) {
+      return;
+    }
+
+    if (this.isDemoMode) {
+      // Add task to demo mode
+      const newTask: Task = {
+        id: Date.now(),
+        text: this.newTaskText.trim(),
+        done: false,
+        userId: 0
+      };
+      this.tasks.push(newTask);
+      this.newTaskText = '';
       return;
     }
 
@@ -82,6 +127,16 @@ export class TasksComponent implements OnInit {
       return;
     }
 
+    if (this.isDemoMode) {
+      // Update task in demo mode
+      const taskIndex = this.tasks.findIndex((task) => task.id === taskId);
+      if (taskIndex !== -1) {
+        this.tasks[taskIndex].text = this.editingTaskText.trim();
+      }
+      this.cancelEdit();
+      return;
+    }
+
     this.loading = true;
 
     this.tasksService
@@ -105,6 +160,12 @@ export class TasksComponent implements OnInit {
 
   // Toggle task done status
   toggleTaskDone(task: Task): void {
+    if (this.isDemoMode) {
+      // Toggle task in demo mode
+      task.done = !task.done;
+      return;
+    }
+
     this.loading = true;
 
     this.tasksService.toggleTaskDone(task.id).subscribe({
@@ -126,6 +187,12 @@ export class TasksComponent implements OnInit {
       return;
     }
 
+    if (this.isDemoMode) {
+      // Delete task in demo mode
+      this.tasks = this.tasks.filter((task) => task.id !== taskId);
+      return;
+    }
+
     this.loading = true;
 
     this.tasksService.deleteTask(taskId).subscribe({
@@ -139,6 +206,19 @@ export class TasksComponent implements OnInit {
         this.loading = false;
       },
     });
+  }
+
+  // Login to real mode
+  login(): void {
+    this.router.navigate(['/auth']);
+  }
+
+  // Logout
+  logout(): void {
+    localStorage.removeItem('token');
+    this.isDemoMode = true;
+    this.loadDemoTasks();
+    this.error = 'Session expired. You are now in demo mode.';
   }
 
   // Get completed tasks count
